@@ -25,11 +25,11 @@
         <i class="fas fa-arrow-left"></i>
         Go Back
     </a>
-    <a href="{{ route('dashboard') }}" class="btn btn-black">
+    <a href="{{ auth()->check() ? route('dashboard') : route('login') }}" class="btn btn-black">
         <i class="fas fa-home"></i>
         Go to Dashboard
     </a>
-    <a href="mailto:support@{{ parse_url(config('app.url'), PHP_URL_HOST) }}" class="btn btn-border-black">
+    <a href="{{ route('contact.page') }}" class="btn btn-border-black">
         <i class="fas fa-envelope"></i>
         Contact Support
     </a>
