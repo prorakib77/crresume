@@ -3,15 +3,12 @@
 namespace App\Services;
 
 use App\Mail\SupportTicketMessageMail;
-use App\Models\AgentClientAssignment;
-use App\Models\ClientProfile;
 use App\Models\Notification;
 use App\Models\SupportTicket;
 use App\Models\SupportTicketMessage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -27,13 +24,8 @@ class SupportTicketService
         }
 
         if ($user->isAgent()) {
-            $assignedClientIds = $this->assignedClientIdsForAgent($user);
-
-            return $query->where(function (Builder $ticketQuery) use ($user, $assignedClientIds) {
-                $ticketQuery->where('agent_id', $user->id)
-                    ->orWhereIn('client_id', $assignedClientIds)
-                    ->orWhereNull('agent_id');
-            });
+            // Agents should only see tickets explicitly assigned to them.
+            return $query->where('agent_id', $user->id);
         }
 
         $clientProfileId = $user->clientProfile?->id;
@@ -68,35 +60,6 @@ class SupportTicketService
         }
 
         if ($user->isAgent() && $ticket->agent_id === $user->id) {
-            return;
-        }
-
-        if ($user->isAgent() && $ticket->client_id) {
-            $isAssigned = AgentClientAssignment::query()
-                ->where('agent_id', $user->id)
-                ->where('client_id', $ticket->client_id)
-                ->where('is_active', true)
-                ->exists();
-
-            if ($isAssigned) {
-                return;
-            }
-
-            $clientProfileId = $ticket->client?->clientProfile?->id;
-
-            if ($clientProfileId) {
-                $legacyAssigned = DB::table('agent_client')
-                    ->where('agent_id', $user->id)
-                    ->where('client_id', $clientProfileId)
-                    ->exists();
-
-                if ($legacyAssigned) {
-                    return;
-                }
-            }
-        }
-
-        if ($user->isAgent() && $ticket->agent_id === null) {
             return;
         }
 
@@ -321,32 +284,6 @@ class SupportTicketService
 
         return $sender?->name ?? SupportTicket::CLIENT_ALIAS;
     }
-
-    protected function assignedClientIdsForAgent(User $user): array
-    {
-        $assignedClientIds = AgentClientAssignment::query()
-            ->where('agent_id', $user->id)
-            ->where('is_active', true)
-            ->pluck('client_id')
-            ->toArray();
-
-        $legacyProfileIds = DB::table('agent_client')
-            ->where('agent_id', $user->id)
-            ->pluck('client_id')
-            ->toArray();
-
-        if (!empty($legacyProfileIds)) {
-            $legacyUserIds = ClientProfile::query()
-                ->whereIn('id', $legacyProfileIds)
-                ->pluck('user_id')
-                ->toArray();
-
-            $assignedClientIds = array_unique(array_merge($assignedClientIds, $legacyUserIds));
-        }
-
-        return $assignedClientIds;
-    }
-
     protected function sendMessageEmails(SupportTicket $ticket, SupportTicketMessage $message, ?User $sender = null): void
     {
         $ticket->loadMissing('client', 'agent', 'creator');
