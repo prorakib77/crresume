@@ -32,9 +32,27 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null; // Let Laravel handle it with full debug info
             }
 
+            // Let Laravel handle its native redirect/validation responses.
+            if (
+                $e instanceof \Illuminate\Validation\ValidationException
+                || $e instanceof \Illuminate\Auth\AuthenticationException
+                || $e instanceof \Illuminate\Http\Exceptions\HttpResponseException
+            ) {
+                return null;
+            }
+
             // For production, show custom error pages
             if ($request->expectsJson()) {
                 $statusCode = 500;
+
+                if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+                    $statusCode = 419;
+                }
+
+                if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                    $statusCode = 403;
+                }
+
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
                     $statusCode = $e->getStatusCode();
                 }
@@ -47,6 +65,14 @@ return Application::configure(basePath: dirname(__DIR__))
             // Handle specific HTTP exceptions
             if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                 return response()->view('errors.404', [], 404);
+            }
+
+            if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+                return response()->view('errors.419', [], 419);
+            }
+
+            if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                return response()->view('errors.403', [], 403);
             }
 
             if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
