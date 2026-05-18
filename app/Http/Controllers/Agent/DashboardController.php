@@ -1124,20 +1124,19 @@ class DashboardController extends Controller
                 (int) $request->expiry_minutes
             );
 
-            // Send email to client (bubble up if it fails)
+            $mailSent = true;
+
+            // Do not fail the OTP request if SMTP is unavailable.
             try {
                 Mail::to($client->email)->send(new \App\Mail\OtpRequestMail($otpVerification));
             } catch (\Throwable $mailError) {
-                Log::error('OTP mail send failed', [
+                $mailSent = false;
+
+                Log::warning('OTP mail send failed', [
                     'error' => $mailError->getMessage(),
                     'client_id' => $client->id,
                     'otp_id' => $otpVerification->id,
                 ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to send OTP email: ' . $mailError->getMessage(),
-                ], 500);
             }
 
             // Create notification for client
@@ -1157,7 +1156,9 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'OTP request sent successfully to ' . $client->name . ' (expires in ' . (int) $request->expiry_minutes . ' minutes)'
+                'message' => $mailSent
+                    ? 'OTP request sent successfully to ' . $client->name . ' (expires in ' . (int) $request->expiry_minutes . ' minutes)'
+                    : 'OTP request was saved, but the notification email could not be sent. Please verify your mail settings.'
             ]);
 
         } catch (\Exception $e) {
