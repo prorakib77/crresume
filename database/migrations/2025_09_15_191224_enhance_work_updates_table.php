@@ -2,10 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    protected function supportsFullTextIndex(): bool
+    {
+        return in_array(DB::getDriverName(), ['mysql', 'mariadb'], true);
+    }
+
     /**
      * Run the migrations.
      */
@@ -55,8 +61,9 @@ return new class extends Migration
             $table->index(['client_id', 'applied_date']);
             $table->index(['batch_id']);
             
-            // Full-text search indexes
-            $table->fullText(['job_title', 'company']);
+            if ($this->supportsFullTextIndex()) {
+                $table->fullText(['job_title', 'company']);
+            }
         });
     }
 
@@ -75,7 +82,9 @@ return new class extends Migration
             $table->dropIndex(['agent_id', 'applied_date']);
             $table->dropIndex(['client_id', 'applied_date']);
             $table->dropIndex(['batch_id']);
-            $table->dropFullText(['job_title', 'company']);
+            if ($this->supportsFullTextIndex()) {
+                $table->dropFullText(['job_title', 'company']);
+            }
             
             // Restore original columns
             $table->dropColumn(['status', 'applied_method']);
