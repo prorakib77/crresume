@@ -1,0 +1,96 @@
+APP_NAME="W-Automation"
+APP_ENV=production
+APP_KEY=base64:generate-with-php-artisan-key-generate-show
+APP_DEBUG=false
+APP_URL=https://full-service.crresumes.com
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+# APP_MAINTENANCE_STORE=database
+
+PHP_CLI_SERVER_WORKERS=4
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=error
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=w_automation_c
+DB_USERNAME=root
+DB_PASSWORD=
+
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+
+CACHE_STORE=database
+# CACHE_PREFIX=
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# Mail Configuration (Gmail SMTP with App Password)
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=caliroweteam@caliwfhresumes.com
+MAIL_PASSWORD=your-gmail-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="caliroweteam@caliwfhresumes.com"
+MAIL_FROM_NAME="W-Automation"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+VITE_APP_NAME="${APP_NAME}"
+
+# Mailchimp Integration
+MAILCHIMP_API_KEY=your-mailchimp-api-key
+MAILCHIMP_SERVER_PREFIX=us11
+MAILCHIMP_LIST_ID=41abeb1653
+
+# Admin Pass Key
+ADMIN_PASS_KEY=admin1234
+
+# Google Calendar API Configuration
+GOOGLE_CREDENTIALS_PATH=storage/app/google/credentials.json
+GOOGLE_ADMIN_EMAIL=caliroweteam@caliwfhresumes.com
+GOOGLE_CALENDAR_ID=primary
+GOOGLE_TIMEZONE=Asia/Dhaka
+GOOGLE_MEETING_DURATION=24
+GOOGLE_AUTO_GENERATE=true
+GOOGLE_NOTIFICATION_ENABLED=true
+GOOGLE_MEET_ROOM_LINK=https://meet.google.com/eav-xnab-doc
+
+# Google Service Account Configuration
+GOOGLE_PROJECT_ID=wfh-resume
+GOOGLE_SERVICE_EMAIL=wfh-resume@wfh-resume.iam.gserviceaccount.com
+GOOGLE_SERVICE_ACCOUNT_PATH=storage/app/google-service-account.json
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
+GOOGLE_REDIRECT_URI=https://full-service.crresumes.com/google/oauth/callback
+GOOGLE_MEET_API_KEY=your-google-meet-api-key

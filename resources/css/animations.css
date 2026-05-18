@@ -1,0 +1,436 @@
+/**
+ * Additional CSS utilities and animations
+ * Extends the main app.css with additional components and utilities
+ */
+
+/* Animation Classes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes slideOutDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+    40%, 43% { transform: translate3d(0, -30px, 0); }
+    70% { transform: translate3d(0, -15px, 0); }
+    90% { transform: translate3d(0, -4px, 0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+/* Animation Utility Classes */
+.animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+.animate-fade-out { animation: fadeOut 0.3s ease-in-out; }
+.animate-slide-in-right { animation: slideInRight 0.3s ease-out; }
+.animate-slide-out-right { animation: slideOutRight 0.3s ease-in; }
+.animate-slide-in-left { animation: slideInLeft 0.3s ease-out; }
+.animate-slide-out-left { animation: slideOutLeft 0.3s ease-in; }
+.animate-slide-in-up { animation: slideInUp 0.3s ease-out; }
+.animate-slide-out-down { animation: slideOutDown 0.3s ease-in; }
+.animate-bounce { animation: bounce 1s infinite; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
+
+/* Loading Spinner */
+.spinner {
+    @apply inline-block w-4 h-4 border-2 border-solid border-current border-r-transparent rounded-full;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-lg {
+    @apply w-8 h-8 border-4;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Form Components */
+.form-group {
+    @apply mb-6;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.form-label.required::after {
+    @apply text-red-500 ml-1;
+    content: '*';
+}
+
+.form-input {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 
+           focus:border-primary-500 transition-colors duration-200;
+}
+
+.form-input.error {
+    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-input.success {
+    @apply border-green-500 focus:ring-green-500 focus:border-green-500;
+}
+
+.form-textarea {
+    @apply form-input resize-none;
+    min-height: 120px;
+}
+
+.form-select {
+    @apply form-input pr-10 bg-white;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+
+.form-checkbox,
+.form-radio {
+    @apply h-4 w-4 text-primary-600 border-gray-300 rounded 
+           focus:ring-primary-500 focus:ring-2;
+}
+
+.form-radio {
+    @apply rounded-full;
+}
+
+.form-error {
+    @apply mt-1 text-sm text-red-600;
+}
+
+.form-help {
+    @apply mt-1 text-sm text-gray-500;
+}
+
+/* Enhanced Table Components */
+.table-responsive {
+    @apply overflow-x-auto;
+}
+
+.table {
+    @apply min-w-full divide-y divide-gray-200;
+}
+
+.table thead {
+    @apply bg-gray-50;
+}
+
+.table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+.table tbody tr:nth-child(even) {
+    @apply bg-gray-50;
+}
+
+.table tbody tr:hover {
+    @apply bg-gray-100;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    @apply bg-white;
+}
+
+.table-striped tbody tr:nth-child(even) {
+    @apply bg-gray-50;
+}
+
+/* Enhanced Card Components */
+.card-grid {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card-compact {
+    @apply bg-white rounded-lg shadow p-4 border border-gray-200;
+}
+
+.card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+}
+
+.card-clickable {
+    @apply cursor-pointer transition-all duration-200 hover:shadow-lg hover:bg-gray-50;
+}
+
+/* Status Indicators */
+.status-indicator {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-success {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-warning {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-error {
+    @apply bg-red-100 text-red-800;
+}
+
+.status-info {
+    @apply bg-blue-100 text-blue-800;
+}
+
+.status-neutral {
+    @apply bg-gray-100 text-gray-800;
+}
+
+/* Progress Bars */
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+    @apply h-2 bg-primary-600 rounded-full transition-all duration-300;
+}
+
+.progress-bar-sm .progress-fill {
+    @apply h-1;
+}
+
+.progress-bar-lg .progress-fill {
+    @apply h-4;
+}
+
+/* Tooltip */
+.tooltip {
+    @apply absolute z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded-md opacity-0 
+           pointer-events-none transition-opacity duration-200;
+}
+
+.tooltip.show {
+    @apply opacity-100;
+}
+
+.tooltip-arrow {
+    @apply absolute w-0 h-0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #1f2937;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5
+           focus:outline-none z-50 opacity-0 scale-95 transition-all duration-100;
+}
+
+.dropdown-menu.show {
+    @apply opacity-100 scale-100;
+}
+
+.dropdown-item {
+    @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900
+           transition-colors duration-150;
+}
+
+.dropdown-divider {
+    @apply border-t border-gray-200 my-1;
+}
+
+/* Search Results */
+.search-results {
+    @apply absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-md
+           shadow-lg max-h-96 overflow-y-auto z-50;
+}
+
+.search-result-item {
+    @apply px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0;
+}
+
+.search-result-title {
+    @apply font-medium text-gray-900;
+}
+
+.search-result-meta {
+    @apply text-sm text-gray-500 mt-1;
+}
+
+.search-highlight {
+    @apply bg-yellow-200 font-medium;
+}
+
+/* Mobile Responsive Utilities */
+@media (max-width: 640px) {
+    .mobile-stack > * {
+        @apply w-full mb-2;
+    }
+    
+    .mobile-hide {
+        @apply hidden;
+    }
+    
+    .mobile-full {
+        @apply w-full;
+    }
+    
+    .table-mobile {
+        @apply block;
+    }
+    
+    .table-mobile thead,
+    .table-mobile tbody,
+    .table-mobile th,
+    .table-mobile td,
+    .table-mobile tr {
+        @apply block;
+    }
+    
+    .table-mobile thead tr {
+        @apply absolute -top-full -left-full;
+    }
+    
+    .table-mobile tr {
+        @apply border border-gray-200 mb-4 rounded-lg p-4;
+    }
+    
+    .table-mobile td {
+        @apply border-none pl-0 py-2;
+        position: relative;
+        padding-left: 50%;
+    }
+    
+    .table-mobile td:before {
+        content: attr(data-label);
+        @apply absolute left-0 w-1/2 pl-0 pr-2 text-left font-medium text-gray-700;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-only {
+        display: block !important;
+    }
+    
+    body {
+        @apply text-black bg-white;
+    }
+    
+    .btn, .button {
+        @apply border border-gray-400 bg-white text-black;
+    }
+    
+    .card {
+        @apply border border-gray-400 shadow-none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .dark-mode-auto {
+        @apply bg-gray-900 text-white;
+    }
+    
+    .dark-mode-auto .card {
+        @apply bg-gray-800 border-gray-700;
+    }
+    
+    .dark-mode-auto .form-input {
+        @apply bg-gray-800 border-gray-600 text-white;
+    }
+    
+    .dark-mode-auto .btn-primary {
+        @apply bg-primary-600 hover:bg-primary-700;
+    }
+}
+
+/* Accessibility Improvements */
+.sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+}
+
+.focus-visible:focus {
+    @apply outline-none ring-2 ring-offset-2 ring-primary-500;
+}
+
+/* Skip Link */
+.skip-link {
+    @apply absolute -top-full left-0 bg-primary-600 text-white px-4 py-2 rounded-br-md
+           focus:top-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .btn {
+        @apply border-2 border-solid;
+    }
+    
+    .card {
+        @apply border-2 border-solid;
+    }
+    
+    .form-input {
+        @apply border-2 border-solid;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

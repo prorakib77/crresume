@@ -1,0 +1,147 @@
+Work Updates Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list me-2"></i>Work Updates History
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if($workUpdates->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Job Title</th>
+                                        <th>Company</th>
+                                        <th>Application Method</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Links</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($workUpdates as $update)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $update->applied_date->format('M j, Y') }}</strong>
+                                                <br>
+                                                <small class=\"text-muted\">{{ $update->applied_date->format('l') }}</small>
+                                            </td>
+                                            <td>
+                                                <strong>{{ $update->job_title }}</strong>
+                                                @if($update->note)
+                                                    <br>
+                                                    <small class=\"text-muted\">{{ Str::limit($update->note, 50) }}</small>
+                                                @endif
+                                            </td>
+                                            <td>{{ $update->company }}</td>
+                                            <td>
+                                                <span class=\"badge bg-light text-dark border\">
+                                                    {{ $update->getAppliedMethodLabel() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $statusColors = [
+                                                        'applied' => 'primary',
+                                                        'interview' => 'warning',
+                                                        'hired' => 'success',
+                                                        'rejected' => 'danger'
+                                                    ];
+                                                    $color = $statusColors[$update->application_status] ?? 'secondary';
+                                                @endphp
+                                                <span class=\"badge bg-{{ $color }}\">
+                                                    {{ $update->getApplicationStatusLabel() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class=\"d-flex align-items-center\">
+                                                    <div class=\"bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2\" style=\"width: 30px; height: 30px;\">
+                                                        S
+                                                    </div>
+                                                    <div>
+                                                        <div class=\"fw-bold\">Support Team</div>
+                                                        <small class=\"text-muted\">Updates submitted by our team</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class=\"d-flex flex-column gap-1\">
+                                                    @if($update->job_link)
+                                                        <a href=\"{{ $update->job_link }}\" target=\"_blank\" class=\"btn btn-sm btn-outline-primary\">
+                                                            <i class=\"fas fa-external-link-alt\"></i> Job Link
+                                                        </a>
+                                                    @endif
+                                                    @if($update->job_success_link)
+                                                        <a href=\"{{ $update->job_success_link }}\" target=\"_blank\" class=\"btn btn-sm btn-outline-success\">
+                                                            <i class=\"fas fa-check-circle\"></i> Success Link
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class=\"d-flex justify-content-between align-items-center mt-4\">
+                            <div class=\"text-muted\">
+                                Showing {{ $workUpdates->firstItem() ?? 0 }} to {{ $workUpdates->lastItem() ?? 0 }}
+                                of {{ $workUpdates->total() }} results
+                            </div>
+                            <div>
+                                {{ $workUpdates->links() }}
+                            </div>
+                        </div>
+                    @else
+                        <div class=\"text-center py-5\">
+                            <i class=\"fas fa-clipboard-list fa-4x text-gray-300 mb-4\"></i>
+                            <h5 class=\"text-gray-600\">No Work Updates Yet</h5>
+                            <p class=\"text-muted\">Your assigned agents haven't submitted any work updates for your account yet.</p>
+                            <div class=\"mt-4\">
+                                <div class=\"alert alert-info\">
+                                    <i class=\"fas fa-info-circle me-2\"></i>
+                                    <strong>What happens next?</strong><br>
+                                    Your assigned agents will submit daily job applications on your behalf.
+                                    All approved applications will appear here, and you can download reports at any time.
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.btn-group-vertical .btn {
+    margin-bottom: 2px;
+}
+</style>
+@endsection
+
+
+

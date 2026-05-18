@@ -1,0 +1,45 @@
+# UPDATES NEEDED FOR YOUR .env FILE
+# Here are the specific changes you need to make:
+
+# 1. FIX MAIL PASSWORD (remove spaces)
+# CURRENT: MAIL_PASSWORD=rvmtnfezxextzqeh
+# SHOULD BE: MAIL_PASSWORD=your-gmail-app-password
+# (The app password needs spaces between the groups)
+
+# 2. UPDATE GOOGLE PROJECT ID
+# CURRENT: GOOGLE_PROJECT_ID=wfh-meet-473418
+# SHOULD BE: GOOGLE_PROJECT_ID=wfh-resume
+
+# 3. UPDATE GOOGLE SERVICE EMAIL
+# CURRENT: GOOGLE_SERVICE_EMAIL=wfh-meet@wfh-meet-473418.iam.gserviceaccount.com
+# SHOULD BE: GOOGLE_SERVICE_EMAIL=wfh-resume@wfh-resume.iam.gserviceaccount.com
+
+# 4. UPDATE GOOGLE MEET ROOM LINK
+# CURRENT: GOOGLE_MEET_ROOM_LINK=https://meet.google.com/xnd-ndmy-uyd
+# SHOULD BE: GOOGLE_MEET_ROOM_LINK=https://meet.google.com/eav-xnab-doc
+
+# 5. ADD MISSING GOOGLE MEET API KEY
+# ADD THIS LINE: GOOGLE_MEET_API_KEY=your-google-meet-api-key
+
+# 6. ADD MISSING GOOGLE SERVICE ACCOUNT PATH
+# ADD THIS LINE: GOOGLE_SERVICE_ACCOUNT_PATH=storage/app/google-service-account.json
+
+# 7. UPDATE APP NAME TO MATCH NEW BRANDING
+# CURRENT: APP_NAME=Atswfhresumes
+# SHOULD BE: APP_NAME="W-Automation"
+
+# 8. UPDATE MAIL FROM NAME
+# CURRENT: MAIL_FROM_NAME="${APP_NAME}"
+# SHOULD BE: MAIL_FROM_NAME="W-Automation"
+
+# 9. UPDATE APP URL FOR PRODUCTION
+# CURRENT: APP_URL=http://localhost
+# SHOULD BE: APP_URL=https://full-service.crresumes.com
+
+# 10. UPDATE APP ENVIRONMENT
+# CURRENT: APP_ENV=local
+# SHOULD BE: APP_ENV=production
+
+# 11. UPDATE DEBUG MODE
+# CURRENT: APP_DEBUG=true
+# SHOULD BE: APP_DEBUG=false
