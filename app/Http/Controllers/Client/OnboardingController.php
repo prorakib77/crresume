@@ -53,7 +53,7 @@ class OnboardingController extends Controller
         }
 
         $data = $request->validate([
-            'onboarding_resume_file' => 'nullable|file|mimes:pdf,doc,docx,csv,xlsx,xls|max:10240',
+            'onboarding_resume_file' => 'required|file|mimes:pdf,doc,docx,csv,xlsx,xls|max:10240',
             'client_signature_camera' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
             'acknowledge_policies' => 'accepted',
 

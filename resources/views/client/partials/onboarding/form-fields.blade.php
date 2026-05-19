@@ -8,17 +8,20 @@
         <span class="onboarding-step">Step 1</span>
         <div>
             <h6 class="mb-1 fw-bold">Resume Upload</h6>
-            <p class="mb-0 text-muted small">Upload your latest resume file.</p>
+            <p class="mb-0 text-muted small">Upload your latest resume file. This is required before you can submit onboarding.</p>
         </div>
     </div>
     <div class="onboarding-section-body">
-        <label class="form-label fw-semibold" for="onboarding_resume_file">Old Resume</label>
+        <label class="form-label fw-semibold" for="onboarding_resume_file">
+            Old Resume <span class="text-danger">*</span>
+        </label>
         <input
             id="onboarding_resume_file"
             type="file"
             name="onboarding_resume_file"
             class="onboarding-resume-upload-input @error('onboarding_resume_file') is-invalid @enderror"
             accept=".pdf,.doc,.docx,.csv,.xlsx,.xls"
+            required
         >
         <label
             for="onboarding_resume_file"
