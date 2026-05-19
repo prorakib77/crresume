@@ -492,6 +492,7 @@
                 const defaultResumeMeta = 'PDF, DOC, DOCX, CSV, XLSX, XLS up to 10MB';
                 const onboardingSelects = document.querySelectorAll('.onboarding-page-shell select.form-select');
                 const customSelectShells = [];
+                let invalidScrollQueued = false;
 
                 const formatFileSize = (size) => {
                     if (!Number.isFinite(size) || size <= 0) return '0 B';
@@ -538,6 +539,22 @@
                     if (typeof target.focus === 'function') {
                         target.focus({ preventScroll: true });
                     }
+                };
+
+                const queueScrollToValidationField = (field) => {
+                    if (invalidScrollQueued) {
+                        return;
+                    }
+
+                    invalidScrollQueued = true;
+
+                    requestAnimationFrame(() => {
+                        scrollToValidationField(field);
+
+                        window.setTimeout(() => {
+                            invalidScrollQueued = false;
+                        }, 200);
+                    });
                 };
 
                 const setResumeValidationState = (isValid) => {
@@ -782,10 +799,6 @@
                 if (resumeInput && resumeDropzone) {
                     syncResumeFileState(resumeInput.files?.[0] ?? null);
                     resumeInput.addEventListener('change', (event) => syncResumeFileState(event.target.files?.[0] ?? null));
-                    resumeInput.addEventListener('invalid', (event) => {
-                        event.preventDefault();
-                        setResumeValidationState(false);
-                    });
                     resumeDropzone.addEventListener('keydown', (event) => {
                         if (!['Enter', ' '].includes(event.key)) {
                             return;
@@ -824,36 +837,45 @@
                     });
                 }
 
-                const validatableFields = onboardingForm
+                const getValidatableFields = () => onboardingForm
                     ? Array.from(onboardingForm.querySelectorAll('input, textarea, select'))
                     : [];
 
-                validatableFields.forEach((field) => {
+                const updateFieldValidationStateFromEvent = (event) => {
+                    const field = event.target;
+
                     if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) {
                         return;
                     }
 
-                    const eventName = field instanceof HTMLSelectElement || field.type === 'checkbox' || field.type === 'file'
-                        ? 'change'
-                        : 'input';
+                    setFieldValidationState(field);
+                };
 
-                    field.addEventListener('invalid', (event) => {
-                        event.preventDefault();
-                        setFieldValidationState(field);
-                    });
+                onboardingForm?.addEventListener('input', updateFieldValidationStateFromEvent, true);
+                onboardingForm?.addEventListener('change', updateFieldValidationStateFromEvent, true);
+                onboardingForm?.addEventListener('invalid', (event) => {
+                    const field = event.target;
 
-                    field.addEventListener(eventName, () => setFieldValidationState(field));
-                });
+                    if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    setFieldValidationState(field);
+                    queueScrollToValidationField(field);
+                }, true);
 
                 onboardingForm?.addEventListener('submit', (event) => {
-                    const firstInvalidField = validatableFields.find((field) => !setFieldValidationState(field));
+                    invalidScrollQueued = false;
+
+                    const firstInvalidField = getValidatableFields().find((field) => !setFieldValidationState(field));
 
                     if (!firstInvalidField) {
                         return;
                     }
 
                     event.preventDefault();
-                    scrollToValidationField(firstInvalidField);
+                    queueScrollToValidationField(firstInvalidField);
                 });
 
                 onboardingSelects.forEach((select, index) => buildCustomSelect(select, index));
