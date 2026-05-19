@@ -18,6 +18,8 @@
     RewriteRule ^$ index.php [L]
 
     # When the runtime app lives in ../laravel_app, serve its public assets directly.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteCond %{DOCUMENT_ROOT}/../laravel_app/public/$1 -f [OR]
     RewriteCond %{DOCUMENT_ROOT}/../laravel_app/public/$1 -d
