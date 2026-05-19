@@ -10,7 +10,7 @@
         <div class="row g-3">
             <div class="col-12">
                 <label class="form-label">Service Package *</label>
-                <select name="service_package" class="form-select @error('service_package') is-invalid @enderror">
+                <select name="service_package" class="form-select @error('service_package') is-invalid @enderror" required>
                     <option value="">Select service</option>
                     <option value="2-weeks" {{ old('service_package') === '2-weeks' ? 'selected' : '' }}>2 Weeks</option>
                     <option value="3-weeks" {{ old('service_package') === '3-weeks' ? 'selected' : '' }}>3 Weeks</option>

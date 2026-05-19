@@ -505,6 +505,41 @@
                     return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
                 };
 
+                const getValidationTarget = (field) => {
+                    if (!(field instanceof HTMLElement)) {
+                        return null;
+                    }
+
+                    if (field === resumeInput) {
+                        return resumeDropzone;
+                    }
+
+                    if (field instanceof HTMLSelectElement) {
+                        const shell = field.nextElementSibling;
+
+                        if (shell instanceof HTMLElement && shell.classList.contains('onboarding-custom-select')) {
+                            return shell.querySelector('.onboarding-custom-select-trigger') ?? shell;
+                        }
+                    }
+
+                    return field;
+                };
+
+                const scrollToValidationField = (field) => {
+                    const target = getValidationTarget(field);
+
+                    if (!(target instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const scrollTarget = target.closest('.onboarding-section-card, .border.rounded-4, .alert') ?? target;
+                    scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    if (typeof target.focus === 'function') {
+                        target.focus({ preventScroll: true });
+                    }
+                };
+
                 const setResumeValidationState = (isValid) => {
                     if (!resumeInput || !resumeDropzone || !resumeValidation) return;
 
@@ -519,6 +554,31 @@
                     }
 
                     resumeInput.setCustomValidity('Please upload your old resume before submitting onboarding.');
+                };
+
+                const setFieldValidationState = (field) => {
+                    if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) {
+                        return true;
+                    }
+
+                    if (field === resumeInput) {
+                        const isValid = field.files?.length > 0 && field.checkValidity();
+                        setResumeValidationState(isValid);
+                        return isValid;
+                    }
+
+                    const isValid = field.checkValidity();
+                    field.classList.toggle('is-invalid', !isValid);
+
+                    if (field instanceof HTMLSelectElement) {
+                        const shell = field.nextElementSibling;
+
+                        if (shell instanceof HTMLElement && shell.classList.contains('onboarding-custom-select')) {
+                            syncCustomSelectState(field, shell);
+                        }
+                    }
+
+                    return isValid;
                 };
 
                 const syncResumeFileState = (file) => {
@@ -764,16 +824,36 @@
                     });
                 }
 
+                const validatableFields = onboardingForm
+                    ? Array.from(onboardingForm.querySelectorAll('input, textarea, select'))
+                    : [];
+
+                validatableFields.forEach((field) => {
+                    if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) {
+                        return;
+                    }
+
+                    const eventName = field instanceof HTMLSelectElement || field.type === 'checkbox' || field.type === 'file'
+                        ? 'change'
+                        : 'input';
+
+                    field.addEventListener('invalid', (event) => {
+                        event.preventDefault();
+                        setFieldValidationState(field);
+                    });
+
+                    field.addEventListener(eventName, () => setFieldValidationState(field));
+                });
+
                 onboardingForm?.addEventListener('submit', (event) => {
-                    if (resumeInput?.files?.length) {
-                        setResumeValidationState(true);
+                    const firstInvalidField = validatableFields.find((field) => !setFieldValidationState(field));
+
+                    if (!firstInvalidField) {
                         return;
                     }
 
                     event.preventDefault();
-                    setResumeValidationState(false);
-                    resumeDropzone?.focus();
-                    resumeDropzone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    scrollToValidationField(firstInvalidField);
                 });
 
                 onboardingSelects.forEach((select, index) => buildCustomSelect(select, index));
@@ -806,11 +886,11 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Institution Name *</label>
-                                <input type="text" name="education[institution][]" class="form-control">
+                                <input type="text" name="education[institution][]" class="form-control" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Degree *</label>
-                                <input type="text" name="education[degree][]" class="form-control">
+                                <input type="text" name="education[degree][]" class="form-control" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Enrollment Date</label>
@@ -842,6 +922,12 @@
                 });
 
                 refreshEducation();
+
+                const firstServerInvalidField = onboardingForm?.querySelector('.is-invalid');
+
+                if (firstServerInvalidField instanceof HTMLElement) {
+                    requestAnimationFrame(() => scrollToValidationField(firstServerInvalidField));
+                }
             });
         </script>
     @endpush

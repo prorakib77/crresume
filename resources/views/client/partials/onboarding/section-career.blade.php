@@ -10,12 +10,12 @@
         <div class="row g-3">
             <div class="col-lg-6">
                 <label class="form-label">Remote roles you are targeting *</label>
-                <textarea name="target_roles" class="form-control @error('target_roles') is-invalid @enderror" rows="2">{{ old('target_roles') }}</textarea>
+                <textarea name="target_roles" class="form-control @error('target_roles') is-invalid @enderror" rows="2" required>{{ old('target_roles') }}</textarea>
                 @error('target_roles')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-lg-6">
                 <label class="form-label">Industries you are interested in and experienced in *</label>
-                <textarea name="industries" class="form-control @error('industries') is-invalid @enderror" rows="2">{{ old('industries') }}</textarea>
+                <textarea name="industries" class="form-control @error('industries') is-invalid @enderror" rows="2" required>{{ old('industries') }}</textarea>
                 @error('industries')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-lg-6">
@@ -30,7 +30,7 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">Desired Pay Type *</label>
-                <select name="salary_type" class="form-select @error('salary_type') is-invalid @enderror">
+                <select name="salary_type" class="form-select @error('salary_type') is-invalid @enderror" required>
                     <option value="">Select</option>
                     <option value="hourly" {{ old('salary_type') === 'hourly' ? 'selected' : '' }}>Hourly</option>
                     <option value="yearly" {{ old('salary_type') === 'yearly' ? 'selected' : '' }}>Yearly</option>
@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-8">
                 <label class="form-label">Amount *</label>
-                <input type="text" name="salary_amount" class="form-control @error('salary_amount') is-invalid @enderror" placeholder="e.g., 30/hr or 70,000/yr" value="{{ old('salary_amount') }}">
+                <input type="text" name="salary_amount" class="form-control @error('salary_amount') is-invalid @enderror" placeholder="e.g., 30/hr or 70,000/yr" value="{{ old('salary_amount') }}" required>
                 @error('salary_amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-lg-6">

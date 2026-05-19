@@ -19,11 +19,13 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Institution Name *</label>
-                            <input type="text" name="education[institution][]" class="form-control" value="{{ old('education.institution.'.$i) }}">
+                            <input type="text" name="education[institution][]" class="form-control @error('education.institution.'.$i) is-invalid @enderror" value="{{ old('education.institution.'.$i) }}" required>
+                            @error('education.institution.'.$i)<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Degree *</label>
-                            <input type="text" name="education[degree][]" class="form-control" value="{{ old('education.degree.'.$i) }}">
+                            <input type="text" name="education[degree][]" class="form-control @error('education.degree.'.$i) is-invalid @enderror" value="{{ old('education.degree.'.$i) }}" required>
+                            @error('education.degree.'.$i)<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Enrollment Date</label>
