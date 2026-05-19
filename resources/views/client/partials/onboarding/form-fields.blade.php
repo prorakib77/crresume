@@ -27,6 +27,7 @@
             for="onboarding_resume_file"
             id="onboardingResumeDropzone"
             class="onboarding-resume-dropzone @error('onboarding_resume_file') is-invalid @enderror"
+            tabindex="0"
         >
             <span class="onboarding-resume-dropzone-icon">
                 <i class="fas fa-cloud-arrow-up"></i>
@@ -35,9 +36,12 @@
             <span class="onboarding-resume-dropzone-copy">or click here to choose a file</span>
             <span id="onboardingResumeMeta" class="onboarding-resume-dropzone-meta">PDF, DOC, DOCX, CSV, XLSX, XLS up to 10MB</span>
         </label>
-        @error('onboarding_resume_file')
-            <div class="invalid-feedback d-block">{{ $message }}</div>
-        @enderror
+        <div
+            id="onboardingResumeValidation"
+            class="invalid-feedback{{ $errors->has('onboarding_resume_file') ? ' d-block' : ' d-none' }}"
+        >
+            {{ $errors->first('onboarding_resume_file', 'Please upload your old resume before submitting onboarding.') }}
+        </div>
     </div>
 </section>
 

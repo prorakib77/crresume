@@ -475,11 +475,13 @@
                 const resumeDropzone = document.getElementById('onboardingResumeDropzone');
                 const resumeTitle = document.getElementById('onboardingResumeTitle');
                 const resumeMeta = document.getElementById('onboardingResumeMeta');
+                const resumeValidation = document.getElementById('onboardingResumeValidation');
                 const openGuideBtn = document.getElementById('openOnboardingGuide');
                 const closeGuideBtn = document.getElementById('closeOnboardingGuide');
                 const guideModal = document.getElementById('onboardingGuideModal');
                 const addBtn = document.getElementById('add-education');
                 const wrapper = document.getElementById('education-wrapper');
+                const onboardingForm = resumeInput?.closest('form') ?? null;
                 let bodyOverflowBeforeGuide = '';
 
                 if (guideModal && guideModal.parentElement !== document.body) {
@@ -503,6 +505,22 @@
                     return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
                 };
 
+                const setResumeValidationState = (isValid) => {
+                    if (!resumeInput || !resumeDropzone || !resumeValidation) return;
+
+                    resumeInput.classList.toggle('is-invalid', !isValid);
+                    resumeDropzone.classList.toggle('is-invalid', !isValid);
+                    resumeValidation.classList.toggle('d-none', isValid);
+                    resumeValidation.classList.toggle('d-block', !isValid);
+
+                    if (isValid) {
+                        resumeInput.setCustomValidity('');
+                        return;
+                    }
+
+                    resumeInput.setCustomValidity('Please upload your old resume before submitting onboarding.');
+                };
+
                 const syncResumeFileState = (file) => {
                     if (!resumeDropzone || !resumeTitle || !resumeMeta) return;
                     if (file) {
@@ -510,6 +528,7 @@
                         resumeTitle.textContent = file.name;
                         const fileType = file.type ? file.type.toUpperCase() : 'FILE';
                         resumeMeta.textContent = `${fileType} | ${formatFileSize(file.size)}`;
+                        setResumeValidationState(true);
                         return;
                     }
                     resumeDropzone.classList.remove('has-file');
@@ -703,6 +722,18 @@
                 if (resumeInput && resumeDropzone) {
                     syncResumeFileState(resumeInput.files?.[0] ?? null);
                     resumeInput.addEventListener('change', (event) => syncResumeFileState(event.target.files?.[0] ?? null));
+                    resumeInput.addEventListener('invalid', (event) => {
+                        event.preventDefault();
+                        setResumeValidationState(false);
+                    });
+                    resumeDropzone.addEventListener('keydown', (event) => {
+                        if (!['Enter', ' '].includes(event.key)) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        resumeInput.click();
+                    });
 
                     ['dragenter', 'dragover'].forEach((eventName) => {
                         resumeDropzone.addEventListener(eventName, (event) => {
@@ -732,6 +763,18 @@
                         }
                     });
                 }
+
+                onboardingForm?.addEventListener('submit', (event) => {
+                    if (resumeInput?.files?.length) {
+                        setResumeValidationState(true);
+                        return;
+                    }
+
+                    event.preventDefault();
+                    setResumeValidationState(false);
+                    resumeDropzone?.focus();
+                    resumeDropzone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
 
                 onboardingSelects.forEach((select, index) => buildCustomSelect(select, index));
 
