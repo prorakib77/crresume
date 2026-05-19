@@ -110,10 +110,13 @@ if [ -d "../public_html/public" ]; then
     print_status "Syncing shared-hosting public asset links..."
 
     if [ -d "public/build" ]; then
+        mkdir -p ../public_html/build
+        cp -R public/build/. ../public_html/build/
         ln -sfn ../../laravel_app/public/build ../public_html/public/build 2>/dev/null || true
     fi
 
     if [ -d "storage/app/public" ]; then
+        ln -sfn ../laravel_app/storage/app/public ../public_html/storage 2>/dev/null || true
         ln -sfn ../../laravel_app/storage/app/public ../public_html/public/storage 2>/dev/null || true
     fi
 
