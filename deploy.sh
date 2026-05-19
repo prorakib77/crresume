@@ -106,6 +106,20 @@ else
     fi
 fi
 
+if [ -d "../public_html/public" ]; then
+    print_status "Syncing shared-hosting public asset links..."
+
+    if [ -d "public/build" ]; then
+        ln -sfn ../../laravel_app/public/build ../public_html/public/build 2>/dev/null || true
+    fi
+
+    if [ -d "storage/app/public" ]; then
+        ln -sfn ../../laravel_app/storage/app/public ../public_html/public/storage 2>/dev/null || true
+    fi
+
+    print_success "Shared-hosting asset links synced."
+fi
+
 RUN_MIGRATIONS=${RUN_MIGRATIONS:-true}
 if [ "$RUN_MIGRATIONS" = "true" ]; then
     print_status "Running database migrations..."
