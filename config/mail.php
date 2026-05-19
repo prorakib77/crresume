@@ -6,6 +6,12 @@ if ($mailScheme === null || $mailScheme === '' || strtolower((string) $mailSchem
     $mailScheme = env('MAIL_ENCRYPTION');
 }
 
+$mailScheme = match (strtolower((string) $mailScheme)) {
+    'ssl', 'smtps' => 'smtps',
+    'tls', 'smtp' => 'smtp',
+    default => $mailScheme ?: null,
+};
+
 return [
 
     /*
