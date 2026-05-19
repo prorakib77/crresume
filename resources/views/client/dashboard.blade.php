@@ -1662,7 +1662,7 @@
                                         @if($assignment?->isServiceCompleted())
                                             <span class="badge bg-info text-dark">Service Completed</span>
                                         @elseif(!$assignment)
-                                            <span class="badge bg-secondary">Awaiting assignment</span>
+                                            <span class="badge bg-secondary">Awaiting service start</span>
                                         @else
                                             @php $daysRemaining = $assignment->getDaysRemaining(); @endphp
                                             @if($daysRemaining !== null && $daysRemaining < 0)
