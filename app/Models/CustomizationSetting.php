@@ -248,6 +248,8 @@ class CustomizationSetting extends Model
      */
     public static function defaultDefinitions(): array
     {
+        $servicePlatformUrl = rtrim((string) config('app.url', 'https://amtrakib.com'), '/');
+
         return [
             'site_name' => [
                 'setting_value' => 'W Automation',
@@ -1302,7 +1304,7 @@ HTML,
                 'is_active' => true,
             ],
             'booking_policy_content' => [
-                'setting_value' => <<<'HTML'
+                'setting_value' => str_replace('https://crresumes.com', $servicePlatformUrl, <<<'HTML'
 <p>This Booking Policy outlines how services are reserved, scheduled, activated, and delivered across our platforms. By purchasing any service, you agree to this policy, along with our Terms of Service and Refund Policy.</p>
 <h2>1. Ownership &amp; Platform Structure</h2>
 <p>All services are owned and operated by Cali and her team.</p>
@@ -1441,7 +1443,7 @@ HTML,
 <p>Cali and her team reserve the right to update, modify, or change this Booking Policy at any time without prior notice.</p>
 <p>Any updates will be reflected by the "Last Updated" displayed at the top of this page.</p>
 <p>By continuing to use our services after any changes are made, you agree to be bound by the updated policy.</p>
-HTML,
+HTML),
                 'setting_type' => 'html',
                 'category' => 'policies',
                 'description' => 'Booking policy page content',
