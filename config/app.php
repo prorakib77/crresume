@@ -70,7 +70,7 @@ return [
         static fn (string $host): string => strtolower(trim($host)),
         explode(',', (string) env(
             'INTERNAL_ACTION_LEGACY_HOSTS',
-            'amtrakib.com,crresumes.com,full-service.crresumes.com'
+            'amtrakib.com,crresumes.com,full-service.crresumes.com,wfh.crresumes.com'
         ))
     )))),
 
