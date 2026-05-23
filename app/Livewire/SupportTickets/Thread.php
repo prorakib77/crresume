@@ -116,6 +116,7 @@ class Thread extends Component
             ->findOrFail($this->ticket->id);
 
         $this->service()->authorize($ticket, $user);
+        $this->service()->hydrateEffectiveAgents([$ticket]);
 
         $messages = $ticket->messages()
             ->with('sender')
@@ -142,6 +143,7 @@ class Thread extends Component
             'isAdmin' => $user->isAdmin(),
             'isAgent' => $user->isAgent(),
             'isClient' => $user->isClient(),
+            'canRequestClose' => $user->isAgent() && !$ticket->isCloseRequested() && !$ticket->isClosed() && $this->service()->canAgentAccessTicket($ticket, $user),
         ]);
     }
 

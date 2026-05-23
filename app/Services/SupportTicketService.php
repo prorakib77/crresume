@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\SupportTicketMessageMail;
+use App\Models\AgentClientAssignment;
 use App\Models\Notification;
 use App\Models\SupportTicket;
 use App\Models\SupportTicketMessage;
@@ -24,8 +25,7 @@ class SupportTicketService
         }
 
         if ($user->isAgent()) {
-            // Agents should only see tickets explicitly assigned to them.
-            return $query->where('agent_id', $user->id);
+            return $this->applyAssignedAgentFilter($query, (int) $user->getKey());
         }
 
         $clientProfileId = $user->clientProfile?->id;
@@ -45,21 +45,11 @@ class SupportTicketService
             return;
         }
 
-        if ($user->isClient()) {
-            $clientProfileId = $user->clientProfile?->id;
-            $clientRelationUserId = $ticket->client?->id ?? $ticket->client?->user_id;
-
-            if (
-                $ticket->client_id === $user->id ||
-                $ticket->created_by === $user->id ||
-                ($clientProfileId && $ticket->client_id === $clientProfileId) ||
-                ($clientRelationUserId && $clientRelationUserId === $user->id)
-            ) {
-                return;
-            }
+        if ($user->isClient() && $this->clientOwnsTicket($ticket, $user)) {
+            return;
         }
 
-        if ($user->isAgent() && $ticket->agent_id === $user->id) {
+        if ($user->isAgent() && $this->canAgentAccessTicket($ticket, $user)) {
             return;
         }
 
@@ -164,7 +154,7 @@ class SupportTicketService
     {
         $this->authorize($ticket, $actor);
 
-        if (!$actor->isAgent() || ($ticket->agent_id !== null && $ticket->agent_id !== $actor->id)) {
+        if (!$actor->isAgent() || !$this->canAgentAccessTicket($ticket, $actor)) {
             abort(403);
         }
 
@@ -238,7 +228,7 @@ class SupportTicketService
     {
         $this->authorize($ticket, $actor);
 
-        if (!$actor->isAdmin() && $actor->id !== $ticket->client_id) {
+        if (!$actor->isAdmin() && !$this->clientOwnsTicket($ticket, $actor)) {
             abort(403);
         }
 
@@ -284,9 +274,106 @@ class SupportTicketService
 
         return $sender?->name ?? SupportTicket::CLIENT_ALIAS;
     }
+
+    public function canAgentAccessTicket(SupportTicket $ticket, User $user): bool
+    {
+        if (!$user->isAgent()) {
+            return false;
+        }
+
+        $userId = (int) $user->getKey();
+
+        if ((int) ($ticket->agent_id ?? 0) === $userId) {
+            return true;
+        }
+
+        if (filled($ticket->agent_id)) {
+            return false;
+        }
+
+        return AgentClientAssignment::query()
+            ->active()
+            ->where('agent_id', $userId)
+            ->where('client_id', (int) $ticket->client_id)
+            ->exists();
+    }
+
+    public function applyAssignedAgentFilter(Builder $query, int $agentId): Builder
+    {
+        return $query->where(function (Builder $ticketQuery) use ($agentId) {
+            $ticketQuery->where('agent_id', $agentId)
+                ->orWhere(function (Builder $fallbackQuery) use ($agentId) {
+                    $fallbackQuery->whereNull('agent_id');
+                    $this->applyActiveAssignmentConstraint($fallbackQuery, $agentId);
+                });
+        });
+    }
+
+    public function applyAssignmentStateFilter(Builder $query, string $assignmentState): Builder
+    {
+        if ($assignmentState === 'assigned') {
+            return $query->where(function (Builder $ticketQuery) {
+                $ticketQuery->whereNotNull('agent_id')
+                    ->orWhere(function (Builder $fallbackQuery) {
+                        $fallbackQuery->whereNull('agent_id');
+                        $this->applyActiveAssignmentConstraint($fallbackQuery);
+                    });
+            });
+        }
+
+        if ($assignmentState === 'unassigned') {
+            return $query->whereNull('agent_id')
+                ->where(function (Builder $ticketQuery) {
+                    $this->applyActiveAssignmentConstraint($ticketQuery, null, true);
+                });
+        }
+
+        return $query;
+    }
+
+    public function hydrateEffectiveAgents(iterable $tickets): void
+    {
+        $ticketCollection = $tickets instanceof Collection ? $tickets : collect($tickets);
+
+        $clientIdsNeedingFallback = $ticketCollection
+            ->filter(fn ($ticket) => $ticket instanceof SupportTicket && !$ticket->agent && blank($ticket->agent_id) && filled($ticket->client_id))
+            ->map(fn (SupportTicket $ticket) => (int) $ticket->client_id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        $assignmentsByClientId = AgentClientAssignment::query()
+            ->active()
+            ->with('agent')
+            ->when(
+                $clientIdsNeedingFallback->isNotEmpty(),
+                fn (Builder $assignmentQuery) => $assignmentQuery->whereIn('client_id', $clientIdsNeedingFallback->all()),
+                fn (Builder $assignmentQuery) => $assignmentQuery->whereRaw('1 = 0')
+            )
+            ->newestFirst()
+            ->get()
+            ->groupBy(fn (AgentClientAssignment $assignment) => (int) $assignment->client_id)
+            ->map(fn (Collection $assignments) => $assignments->first());
+
+        $ticketCollection->each(function ($ticket) use ($assignmentsByClientId): void {
+            if (!$ticket instanceof SupportTicket) {
+                return;
+            }
+
+            $effectiveAgent = $ticket->agent;
+
+            if (!$effectiveAgent && blank($ticket->agent_id)) {
+                $effectiveAgent = optional($assignmentsByClientId->get((int) $ticket->client_id))->agent;
+            }
+
+            $ticket->setRelation('effectiveAgent', $effectiveAgent);
+        });
+    }
+
     protected function sendMessageEmails(SupportTicket $ticket, SupportTicketMessage $message, ?User $sender = null): void
     {
         $ticket->loadMissing('client', 'agent', 'creator');
+        $this->hydrateEffectiveAgents([$ticket]);
 
         $sender ??= $message->relationLoaded('sender')
             ? $message->sender
@@ -344,7 +431,7 @@ class SupportTicketService
     {
         $recipients = collect([
             $ticket->client,
-            $ticket->agent,
+            $ticket->getRelation('effectiveAgent'),
             $ticket->creator,
         ])
             ->filter(fn ($user) => $user instanceof User)
@@ -412,5 +499,47 @@ class SupportTicketService
         $lines = (string) preg_replace("/\n{3,}/", "\n\n", $lines);
 
         return trim($lines);
+    }
+
+    protected function clientOwnsTicket(SupportTicket $ticket, User $user): bool
+    {
+        $ticketClientId = (int) ($ticket->client_id ?? 0);
+        $userId = (int) $user->getKey();
+        $clientProfileId = (int) ($user->clientProfile?->id ?? 0);
+
+        if ($ticketClientId === $userId || (int) ($ticket->created_by ?? 0) === $userId) {
+            return true;
+        }
+
+        if ($clientProfileId > 0 && $ticketClientId === $clientProfileId) {
+            return true;
+        }
+
+        return (int) ($ticket->client?->getKey() ?? 0) === $userId;
+    }
+
+    protected function applyActiveAssignmentConstraint(
+        Builder $query,
+        ?int $agentId = null,
+        bool $negate = false
+    ): Builder {
+        $comparisonDate = now()->toDateString();
+        $method = $negate ? 'whereNotExists' : 'whereExists';
+
+        return $query->{$method}(function ($assignmentQuery) use ($agentId, $comparisonDate) {
+            $assignmentQuery->selectRaw('1')
+                ->from('agent_client_assignments')
+                ->whereColumn('agent_client_assignments.client_id', 'support_tickets.client_id')
+                ->where('agent_client_assignments.is_active', true)
+                ->whereNull('agent_client_assignments.service_completed_at')
+                ->where(function ($activeQuery) use ($comparisonDate) {
+                    $activeQuery->whereNull('agent_client_assignments.service_end_date')
+                        ->orWhere('agent_client_assignments.service_end_date', '>=', $comparisonDate);
+                });
+
+            if ($agentId !== null) {
+                $assignmentQuery->where('agent_client_assignments.agent_id', $agentId);
+            }
+        });
     }
 }

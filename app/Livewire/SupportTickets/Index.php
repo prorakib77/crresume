@@ -147,7 +147,9 @@ class Index extends Component
             'open' => (clone $visibleQuery)->where('status', SupportTicket::STATUS_OPEN)->count(),
             'close_requested' => (clone $visibleQuery)->where('status', SupportTicket::STATUS_CLOSE_REQUESTED)->count(),
             'closed' => (clone $visibleQuery)->where('status', SupportTicket::STATUS_CLOSED)->count(),
-            'unassigned' => $user->isAdmin() ? (clone $visibleQuery)->whereNull('agent_id')->count() : null,
+            'unassigned' => $user->isAdmin()
+                ? $this->service()->applyAssignmentStateFilter(clone $visibleQuery, 'unassigned')->count()
+                : null,
         ];
 
         $query = (clone $visibleQuery)
@@ -164,15 +166,11 @@ class Index extends Component
         }
 
         if ($this->agentId !== '' && $user->isAdmin()) {
-            $query->where('agent_id', $this->agentId);
+            $this->service()->applyAssignedAgentFilter($query, (int) $this->agentId);
         }
 
         if ($this->assignmentState !== '' && $user->isAdmin()) {
-            if ($this->assignmentState === 'assigned') {
-                $query->whereNotNull('agent_id');
-            } elseif ($this->assignmentState === 'unassigned') {
-                $query->whereNull('agent_id');
-            }
+            $this->service()->applyAssignmentStateFilter($query, $this->assignmentState);
         }
 
         if ($this->search !== '') {
@@ -205,8 +203,11 @@ class Index extends Component
             });
         }
 
+        $tickets = $query->paginate(12);
+        $this->service()->hydrateEffectiveAgents($tickets->getCollection());
+
         return view('livewire.support-tickets.index', [
-            'tickets' => $query->paginate(12),
+            'tickets' => $tickets,
             'stats' => $stats,
             'routePrefix' => $this->routePrefix(),
             'availableClients' => $user->isAdmin()

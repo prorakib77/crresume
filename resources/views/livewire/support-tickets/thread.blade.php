@@ -61,6 +61,10 @@
     x-on:support-ticket-scroll.window="$nextTick(() => scrollThread())"
     x-on:support-ticket-message-sent.window="finishSend()"
 >
+    @php
+        $effectiveAgent = $ticket->effectiveAgent ?? $ticket->agent;
+    @endphp
+
     @if($ticket->isCloseRequested())
         <div class="support-thread-banner support-thread-banner-warning">
             <div>
@@ -204,10 +208,10 @@
                         <span class="support-thread-detail-label">{{ $isClient ? 'Support' : 'Assigned' }}</span>
                         <div class="text-end">
                             <div class="support-thread-detail-value">
-                                {{ $isClient ? $clientAlias : ($ticket->agent?->name ?? 'Unassigned') }}
+                                {{ $isClient ? $clientAlias : ($effectiveAgent?->name ?? 'Unassigned') }}
                             </div>
                             <div class="support-thread-detail-copy">
-                                {{ $isClient ? 'Support Specialist' : ($ticket->agent?->email ?? 'Waiting for assignment') }}
+                                {{ $isClient ? 'Support Specialist' : ($effectiveAgent?->email ?? 'Waiting for assignment') }}
                             </div>
                         </div>
                     </div>
@@ -271,7 +275,7 @@
                                 </div>
                             </div>
                         </div>
-                    @elseif($isAgent && (!$ticket->agent_id || $ticket->agent_id === auth()->id()) && !$ticket->isCloseRequested())
+                    @elseif($canRequestClose)
                         <div class="support-thread-close-form">
                             <label class="form-label fw-semibold">Close request note</label>
                             <textarea

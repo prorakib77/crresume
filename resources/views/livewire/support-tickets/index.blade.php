@@ -206,9 +206,10 @@
                 <div class="support-ticket-list">
                     @foreach($tickets as $ticket)
                         @php
+                            $effectiveAgent = $ticket->effectiveAgent ?? $ticket->agent;
                             $assignedLabel = $isClient
                                 ? $clientAlias
-                                : ($ticket->agent?->name ?? 'Unassigned');
+                                : ($effectiveAgent?->name ?? 'Unassigned');
                             $latestMessage = $ticket->latestMessage?->message ?: 'No messages yet.';
                         @endphp
 
@@ -240,7 +241,7 @@
                                     <span class="support-ticket-card-meta-label">{{ $isClient ? 'Support' : 'Assigned' }}</span>
                                     <span class="support-ticket-card-meta-value">{{ $assignedLabel }}</span>
                                     <span class="support-ticket-card-meta-copy">
-                                        {{ $isClient ? 'Support Specialist' : ($ticket->agent?->email ?? 'Waiting for assignment') }}
+                                        {{ $isClient ? 'Support Specialist' : ($effectiveAgent?->email ?? 'Waiting for assignment') }}
                                     </span>
                                 </div>
 
