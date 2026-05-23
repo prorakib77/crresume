@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesInternalActionUrls;
 use App\Models\Concerns\HasSlugRouteKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Notice extends Model
 {
-    use HasFactory, HasSlugRouteKey;
+    use HasFactory, HasSlugRouteKey, ResolvesInternalActionUrls;
 
     public const AUDIENCE_AGENT = 'agent';
     public const AUDIENCE_CLIENT = 'client';
@@ -44,6 +45,10 @@ class Notice extends Model
         'ends_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'resolved_action_url',
     ];
 
     public function recipient(): BelongsTo
@@ -147,6 +152,20 @@ class Notice extends Model
             self::SOURCE_PAYMENT_REQUEST => 'Open Dashboard',
             default => 'Open',
         };
+    }
+
+    public function getResolvedActionUrlAttribute(): ?string
+    {
+        $rawActionUrl = trim((string) ($this->action_url ?? ''));
+        if ($rawActionUrl === '') {
+            return null;
+        }
+
+        $normalizedPathWithQuery = $this->normalizeInternalActionPath($rawActionUrl);
+
+        return $normalizedPathWithQuery === null
+            ? $rawActionUrl
+            : url($normalizedPathWithQuery);
     }
 
     protected function routeKeyPrefix(): string

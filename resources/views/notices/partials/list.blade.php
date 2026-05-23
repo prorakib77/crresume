@@ -46,8 +46,8 @@
                                 @endif
                             </div>
 
-                            @if($notice->action_url)
-                                <a href="{{ $notice->action_url }}" class="btn btn-sm btn-black">
+                            @if($notice->resolved_action_url)
+                                <a href="{{ $notice->resolved_action_url }}" class="btn btn-sm btn-black">
                                     <i class="fas fa-arrow-right me-2"></i>{{ $notice->resolved_action_label }}
                                 </a>
                             @endif

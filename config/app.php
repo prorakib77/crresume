@@ -66,6 +66,14 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'internal_action_legacy_hosts' => array_values(array_unique(array_filter(array_map(
+        static fn (string $host): string => strtolower(trim($host)),
+        explode(',', (string) env(
+            'INTERNAL_ACTION_LEGACY_HOSTS',
+            'amtrakib.com,crresumes.com,full-service.crresumes.com'
+        ))
+    )))),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

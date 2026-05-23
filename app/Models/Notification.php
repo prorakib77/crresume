@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesInternalActionUrls;
 use App\Models\Concerns\HasSlugRouteKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Notification extends Model
 {
-    use HasFactory, SoftDeletes, HasSlugRouteKey;
+    use HasFactory, SoftDeletes, HasSlugRouteKey, ResolvesInternalActionUrls;
 
     protected $fillable = [
         'user_id',
@@ -501,62 +501,6 @@ class Notification extends Model
         }
 
         return $this->roleDashboardUrl($user);
-    }
-
-    private function appendQueryString(string $url, ?string $queryString = null): string
-    {
-        if (blank($queryString)) {
-            return $url;
-        }
-
-        return $url . (str_contains($url, '?') ? '&' : '?') . $queryString;
-    }
-
-    private function normalizeInternalActionPath(string $rawActionUrl): ?string
-    {
-        $trimmed = trim($rawActionUrl);
-        if ($trimmed === '') {
-            return null;
-        }
-
-        if (Str::startsWith($trimmed, ['mailto:', 'tel:', '#'])) {
-            return null;
-        }
-
-        if (Str::startsWith($trimmed, ['http://', 'https://', '//'])) {
-            $parsed = parse_url(Str::startsWith($trimmed, '//') ? 'https:' . $trimmed : $trimmed);
-            if (!is_array($parsed)) {
-                return null;
-            }
-
-            $host = strtolower((string) ($parsed['host'] ?? ''));
-            if ($host === '' || !$this->isInternalActionHost($host)) {
-                return null;
-            }
-
-            $path = '/' . ltrim((string) ($parsed['path'] ?? '/'), '/');
-            $query = isset($parsed['query']) ? (string) $parsed['query'] : '';
-
-            return $query !== '' ? ($path . '?' . $query) : $path;
-        }
-
-        return '/' . ltrim($trimmed, '/');
-    }
-
-    private function isInternalActionHost(string $host): bool
-    {
-        $requestHost = app()->bound('request') ? (string) app('request')->getHost() : '';
-        $appHost = (string) parse_url((string) config('app.url'), PHP_URL_HOST);
-
-        $internalHosts = array_filter([
-            strtolower($requestHost),
-            strtolower($appHost),
-            'localhost',
-            '127.0.0.1',
-            '::1',
-        ]);
-
-        return in_array(strtolower($host), $internalHosts, true);
     }
 
     protected function routeKeyPrefix(): string
