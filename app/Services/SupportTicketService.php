@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Throwable;
 
 class SupportTicketService
 {
@@ -397,14 +398,24 @@ class SupportTicketService
 
         foreach ($recipients as $recipient) {
             if (filled($recipient->email)) {
-                Mail::to($recipient->email)->send(
-                    new SupportTicketMessageMail(
-                        $ticket,
-                        $message,
-                        $recipient,
-                        $this->senderDisplayNameForRecipient($recipient, $sender)
-                    )
-                );
+                try {
+                    Mail::to($recipient->email)->send(
+                        new SupportTicketMessageMail(
+                            $ticket,
+                            $message,
+                            $recipient,
+                            $this->senderDisplayNameForRecipient($recipient, $sender)
+                        )
+                    );
+                } catch (Throwable $exception) {
+                    Log::warning('Support ticket email delivery failed', [
+                        'ticket_id' => $ticket->id,
+                        'recipient_id' => $recipient->id,
+                        'recipient_email' => $recipient->email,
+                        'sender_id' => $sender->id,
+                        'error' => $exception->getMessage(),
+                    ]);
+                }
             }
 
             $this->notificationService()->notify(
