@@ -17,16 +17,17 @@
         .grid td { padding:8px 0; border-bottom:1px solid #f0f0f0; vertical-align:top; }
         .grid td.label { width:110px; color:var(--muted); font-weight:500; }
         .btn { display:inline-block; margin-top:16px; background:#111111; color:#ffffff !important; text-decoration:none; padding:11px 16px; border-radius:8px; font-weight:600; }
+        .sub { margin:6px 0 0; color:var(--muted); font-size:13px; }
         .foot { padding:14px 22px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); background:transparent; }
         @media (max-width:640px) { body { padding:10px; } .head,.body,.foot { padding:14px; } .title { font-size:18px; } .grid td.label { width:95px; } }
     </style>
 </head>
 <body>
     <div class="shell">
-        <div class="head">
-            <p class="brand">{{ site_name() }}</p>
-            <h1 class="title">Daily Agent Meeting</h1>
-        </div>
+        @include('emails.partials.header', [
+            'title' => 'Daily Agent Meeting',
+            'subtitle' => $meeting->date->format('l, F j, Y'),
+        ])
         <div class="body">
             <p>Hello {{ $agent->name }},</p>
             <p>Your meeting schedule is ready.</p>

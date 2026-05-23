@@ -18,16 +18,17 @@
         .grid td.label { width:130px; color:var(--muted); font-weight:500; }
         .message { margin-top:16px; border:1px solid var(--line); border-radius:10px; padding:14px; background:#fcfcfc; }
         .message p { margin:0; white-space:pre-wrap; line-height:1.7; }
+        .sub { margin:6px 0 0; color:var(--muted); font-size:13px; }
         .foot { padding:14px 22px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); background:transparent; }
         @media (max-width:640px) { body { padding:10px; } .head,.body,.foot { padding:14px; } .title { font-size:18px; } .grid td.label { width:110px; } }
     </style>
 </head>
 <body>
     <div class="shell">
-        <div class="head">
-            <p class="brand">{{ site_name() }}</p>
-            <h1 class="title">New Contact Form Submission</h1>
-        </div>
+        @include('emails.partials.header', [
+            'title' => 'New Contact Form Submission',
+            'subtitle' => $payload['subject'],
+        ])
         <div class="body">
             <table class="grid">
                 <tr><td class="label">Name</td><td>{{ $payload['name'] }}</td></tr>

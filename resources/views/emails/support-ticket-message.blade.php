@@ -25,11 +25,10 @@
 </head>
 <body>
     <div class="shell">
-        <div class="head">
-            <p class="brand">{{ site_name() }}</p>
-            <h1 class="title">Support Ticket Update</h1>
-            <p class="sub">{{ $ticket->display_reference }} | {{ $ticket->subject }}</p>
-        </div>
+        @include('emails.partials.header', [
+            'title' => 'Support Ticket Update',
+            'subtitle' => $ticket->display_reference . ' | ' . $ticket->subject,
+        ])
         <div class="body">
             <p>Hello {{ $recipient->name }},</p>
             <p><strong>{{ $senderDisplayName }}</strong> posted a new message.</p>

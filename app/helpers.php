@@ -125,6 +125,35 @@ if (!function_exists('site_favicon')) {
     }
 }
 
+if (!function_exists('email_header_logo')) {
+    /**
+     * Get the email header logo URL, falling back to the site logo.
+     *
+     * @param string|null $default
+     * @return string|null
+     */
+    function email_header_logo(?string $default = null): ?string
+    {
+        $uploadedLogo = \App\Models\CustomizationSetting::getAssetUrl('email_header_logo');
+
+        if (filled($uploadedLogo)) {
+            return $uploadedLogo;
+        }
+
+        $configuredUrl = trim((string) \App\Models\CustomizationSetting::getValue('email_header_logo_url', ''));
+
+        if ($configuredUrl !== '') {
+            if (preg_match('~^(?:https?:)?//|^data:~i', $configuredUrl) === 1) {
+                return $configuredUrl;
+            }
+
+            return url('/' . ltrim($configuredUrl, '/'));
+        }
+
+        return site_logo($default);
+    }
+}
+
 
 if (!function_exists("oauth_settings")) {
     function oauth_settings(): ?\App\Models\OAuthSetting

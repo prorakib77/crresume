@@ -13,6 +13,7 @@
         .brand { margin:0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:600; }
         .title { margin:8px 0 0; font-size:20px; line-height:1.3; }
         .body { padding:22px; font-size:14px; line-height:1.7; }
+        .sub { margin:6px 0 0; color:var(--muted); font-size:13px; }
         .summary { margin:16px 0; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
         .row { display:flex; justify-content:space-between; gap:12px; padding:12px 14px; border-bottom:1px solid #f0f0f0; }
         .row:last-child { border-bottom:none; }
@@ -27,10 +28,10 @@
 </head>
 <body>
     <div class="shell">
-        <div class="head">
-            <p class="brand">{{ site_name() }}</p>
-            <h1 class="title">Payment Request</h1>
-        </div>
+        @include('emails.partials.header', [
+            'title' => 'Payment Request',
+            'subtitle' => $paymentRequest->display_reference,
+        ])
         <div class="body">
             <p>Hello {{ $clientName }},</p>
             <p>A payment request has been added to your account.</p>

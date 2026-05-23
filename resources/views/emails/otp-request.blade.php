@@ -17,16 +17,17 @@
         .details p { margin:0 0 8px; }
         .details p:last-child { margin-bottom:0; }
         .btn { display:inline-block; margin-top:18px; background:#111111; color:#ffffff !important; text-decoration:none; padding:11px 16px; border-radius:8px; font-weight:600; }
+        .sub { margin:6px 0 0; color:var(--muted); font-size:13px; }
         .foot { padding:14px 22px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); background:transparent; }
         @media (max-width:640px) { body { padding:10px; } .head,.body,.foot { padding:14px; } .title { font-size:18px; } }
     </style>
 </head>
 <body>
     <div class="shell">
-        <div class="head">
-            <p class="brand">{{ site_name() }}</p>
-            <h1 class="title">Verification Code Request</h1>
-        </div>
+        @include('emails.partials.header', [
+            'title' => 'Verification Code Request',
+            'subtitle' => $otpVerification->client->email,
+        ])
         <div class="body">
             <p>Hello {{ $otpVerification->client->name }},</p>
             <p>We request that you provide us with the verification code that was sent to your email, as we need it to successfully complete the application.</p>
