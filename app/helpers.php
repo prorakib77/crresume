@@ -127,13 +127,22 @@ if (!function_exists('site_favicon')) {
 
 if (!function_exists('email_header_logo')) {
     /**
-     * Get the email header logo URL, falling back to the site logo.
+     * Get the email header logo URL.
+     *
+     * Prefer the active site logo so email branding stays in sync with the
+     * public site even when legacy email-specific logo settings are stale.
      *
      * @param string|null $default
      * @return string|null
      */
     function email_header_logo(?string $default = null): ?string
     {
+        $siteLogo = site_logo();
+
+        if (filled($siteLogo)) {
+            return $siteLogo;
+        }
+
         $uploadedLogo = \App\Models\CustomizationSetting::getAssetUrl('email_header_logo');
 
         if (filled($uploadedLogo)) {
@@ -150,7 +159,7 @@ if (!function_exists('email_header_logo')) {
             return url('/' . ltrim($configuredUrl, '/'));
         }
 
-        return site_logo($default);
+        return $default;
     }
 }
 

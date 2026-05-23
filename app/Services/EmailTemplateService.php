@@ -179,18 +179,7 @@ class EmailTemplateService
             '#C8A45D'
         );
 
-        $emailLogoUrl = (string) (CustomizationSetting::getAssetUrl('email_header_logo', '') ?: '');
-
-        if ($emailLogoUrl === '') {
-            $emailLogoUrl = trim((string) CustomizationSetting::getValue('email_header_logo_url', ''));
-            if ($emailLogoUrl !== '' && !preg_match('~^(?:https?:)?//|^data:~i', $emailLogoUrl)) {
-                $emailLogoUrl = url('/' . ltrim($emailLogoUrl, '/'));
-            }
-        }
-
-        if ($emailLogoUrl === '') {
-            $emailLogoUrl = (string) (site_logo('') ?: '');
-        }
+        $emailLogoUrl = (string) (email_header_logo('') ?: '');
 
         $emailHeaderBackgroundUrl = (string) (CustomizationSetting::getAssetUrl('email_header_bg_image', '') ?: '');
         if ($emailHeaderBackgroundUrl === '') {
